@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070a12">
+  <title>NEON CHESS // tactical intelligence</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Neon Chess home">
+        <span class="brand-mark">N<span class="brand-mark-slash">/</span>C</span>
+        <span><strong>NEON</strong><small>CHESS // 01</small></span>
+      </a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <button class="nav-item active" id="playNavButton" data-tab="play">PLAY</button>
+        <button class="nav-item" data-tab="study">STUDY <span class="soon">SOON</span></button>
+        <button class="nav-item" data-tab="arena">ARENA <span class="soon">SOON</span></button>
+      </nav>
+      <div class="top-actions">
+        <span class="connection"><i></i> LOCAL CORE ONLINE</span>
+        <button class="icon-button" id="settingsButton" aria-label="Open settings">☷</button>
+      </div>
+    </header>
+
+    <section class="hero-line">
+      <div>
+        <p class="eyebrow">TACTICAL INTERFACE <span>//</span> SESSION 001</p>
+        <h1>Think in <em>dimensions.</em></h1>
+      </div>
+       <div class="hero-metric"><span>ENGINE PROFILE</span><strong>LOCAL CORE</strong></div>
+    </section>
+
+    <section class="landing-panel" id="landingPanel" aria-labelledby="landingTitle">
+      <div class="landing-copy">
+        <p class="eyebrow">YOUR NEXT GAME STARTS HERE</p>
+        <h2 id="landingTitle">Play chess.<br><em>No setup maze.</em></h2>
+        <p class="landing-description">Choose your side, pick the kind of opponent you want, and start playing in one click.</p>
+        <div class="landing-actions">
+          <button class="primary-button landing-start-button" id="startGameButton"><span>START GAME</span><b>↗</b></button>
+          <button class="secondary-button landing-continue-button" id="continueGameButton" hidden>CONTINUE CURRENT GAME</button>
+        </div>
+      </div>
+
+      <div class="landing-config panel-card">
+        <div class="config-block">
+          <span class="config-label">PLAY AS</span>
+          <div class="choice-row" id="landingColorChoices">
+            <button class="choice-button active" data-landing-color="white"><span>♔</span> WHITE</button>
+            <button class="choice-button" data-landing-color="black"><span>♚</span> BLACK</button>
+          </div>
+        </div>
+        <div class="config-block">
+          <span class="config-label">OPPONENT</span>
+          <div class="choice-stack" id="landingLevelChoices">
+            <button class="level-choice" data-landing-level="1"><span><strong>CASUAL</strong><small>Easygoing and forgiving</small></span><b>01</b></button>
+            <button class="level-choice active" data-landing-level="4"><span><strong>CLUB</strong><small>A serious everyday challenge</small></span><b>04</b></button>
+            <button class="level-choice" data-landing-level="6"><span><strong>MASTER</strong><small>Stockfish strength</small></span><b>06</b></button>
+          </div>
+        </div>
+        <div class="config-block config-block-last">
+          <span class="config-label">TIME</span>
+          <div class="choice-row compact" id="landingTimeChoices">
+            <button class="choice-button" data-landing-time="180">3 MIN</button>
+            <button class="choice-button" data-landing-time="600"><span class="choice-check">✓</span> 10 MIN</button>
+            <button class="choice-button" data-landing-time="1800">30 MIN</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="play-layout" id="playPanel" hidden>
+      <div class="board-column">
+        <div class="clock-row opponent-row">
+           <div class="identity" id="engineIdentity"><span class="avatar avatar-cyan">AI</span><span><strong>NEON CORE</strong><small id="opponentColorLabel">BLACK // ENGINE</small></span></div>
+           <div class="clock" id="blackClock" data-side="black">10:00</div>
+        </div>
+
+        <div class="board-stage" id="boardStage">
+          <canvas id="board3d" aria-label="Interactive 3D chess board"></canvas>
+          <div class="board-grid" id="board" aria-label="Chess board" role="grid"></div>
+          <div class="board-floor"></div>
+          <div class="board-scanline"></div>
+        </div>
+
+        <div class="board-footer">
+          <div class="clock-row player-row">
+             <div class="identity"><span class="avatar avatar-violet">YOU</span><span><strong>PLAYER ONE</strong><small id="playerColorLabel">WHITE // HUMAN</small></span></div>
+             <div class="clock active-clock" id="whiteClock" data-side="white">10:00</div>
+          </div>
+          <div class="board-controls">
+            <button class="control-button" id="flipButton" title="Flip board">↕ <span>FLIP</span></button>
+            <button class="control-button" id="cameraButton" title="Change camera">◈ <span>CAMERA</span></button>
+            <button class="control-button active" id="modeButton" title="Toggle 3D board">◇ <span>3D</span></button>
+           <button class="control-button unavailable" id="soundButton" title="Move audio is unavailable in this build" aria-label="Move audio unavailable">◒ <span>SOUND N/A</span></button>
+            <button class="control-button" id="coordinatesButton" title="Toggle coordinates"># <span>GRID</span></button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="panel-card status-card">
+          <div class="card-heading"><span>LIVE STATUS</span><span class="live-dot">● LIVE</span></div>
+          <div class="status-main" id="statusText">Your move.</div>
+          <div class="status-sub" id="statusSub">Select a piece to begin the sequence.</div>
+           <div class="engine-meter"><div class="meter-label"><span>ENGINE CONFIDENCE</span><span id="confidenceText">READY</span></div><div class="meter-track"><span id="confidenceBar"></span></div></div>
+           <div class="engine-notice" id="engineNotice" role="status" hidden></div>
+        </div>
+
+        <div class="panel-card tools-card">
+          <div class="card-heading"><span>GAME TOOLS</span><span class="tools-hint">OPTIONAL</span></div>
+          <p class="tools-description">Save or load a position whenever you need it.</p>
+          <div class="tools-grid">
+            <button id="copyFenButton" class="tool-button">COPY FEN</button>
+            <button id="loadFenButton" class="tool-button">LOAD FEN</button>
+            <button id="exportPgnButton" class="tool-button">EXPORT PGN</button>
+            <button id="importPgnButton" class="tool-button">IMPORT PGN</button>
+          </div>
+          <input id="importPgnInput" type="file" accept=".pgn,text/plain" hidden>
+        </div>
+
+        <div class="panel-card capture-card">
+          <div class="card-heading"><span>CAPTURED MATERIAL</span><span class="material-score" id="materialScore">+0.0</span></div>
+          <div class="captured-line" id="whiteCaptured"></div>
+          <div class="captured-line" id="blackCaptured"></div>
+        </div>
+
+        <div class="panel-card action-card">
+          <button class="primary-button" id="newGameButton"><span>NEW SEQUENCE</span><b>↗</b></button>
+          <div class="action-grid"><button class="secondary-button" id="undoButton">UNDO</button><button class="secondary-button" id="stopEngineButton">STOP</button><button class="secondary-button danger" id="resignButton">RESIGN</button></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="bottom-strip" id="bottomStrip">
+      <div><span class="strip-label">POSITION</span><span id="positionText">STARTING ARRAY</span></div>
+      <div><span class="strip-label">SEARCH</span><span id="searchText">STANDBY</span></div>
+      <div><span class="strip-label">SYSTEM</span><span class="system-good">ALL SYSTEMS NOMINAL</span></div>
+    </section>
+  </main>
+
+  <dialog class="modal" id="newGameModal">
+    <form method="dialog" class="modal-card" id="newGameForm">
+      <button class="modal-close" value="cancel" aria-label="Close">×</button>
+      <p class="eyebrow">NEW SEQUENCE // CONFIGURATION</p>
+      <h2>Set the board.</h2>
+       <label>YOUR SIDE<select id="colorSelect"><option value="white">White</option><option value="black">Black</option></select></label>
+       <label>TIME CONTROL<select id="clockSelect"><option value="180">Blitz // 3:00</option><option value="300">Rapid // 5:00</option><option value="600" selected>Classic // 10:00</option><option value="1800">Long // 30:00</option></select></label>
+       <label>ENGINE LEVEL<select id="levelSelect"></select></label>
+       <label>ENGINE TIME<select id="timeSelect"><option value="0.35">Fast // 0.35 sec</option><option value="0.65" selected>Balanced // 0.65 sec</option><option value="1.4">Deep // 1.4 sec</option><option value="2.8">Focus // 2.8 sec</option><option value="6.0">Tournament // 6.0 sec</option></select></label>
+       <p class="engine-note" id="engineNote">Choose a level to configure the search.</p>
+      <button class="primary-button modal-submit" value="default"><span>INITIALIZE GAME</span><b>↗</b></button>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="promotionModal">
+    <div class="modal-card promotion-card">
+      <p class="eyebrow">PROMOTION // UPGRADE</p><h2>Choose your piece.</h2>
+      <div class="promotion-options" id="promotionOptions"></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
